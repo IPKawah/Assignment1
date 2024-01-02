@@ -1,0 +1,250 @@
+--Create Table
+--============
+
+CREATE TABLE Difficulty (diff_id VARCHAR(10), diff VARCHAR(20),
+PRIMARY KEY (diff_id));
+
+CREATE TABLE Route (route_id VARCHAR(10), route VARCHAR(20),
+PRIMARY KEY (route_id));
+
+CREATE TABLE Units (unit_id VARCHAR(10), type VARCHAR(10), 
+for_height VARCHAR(10),for_weight VARCHAR(10),
+PRIMARY KEY (unit_id));
+
+CREATE TABLE ArchStatus (archStatus_id VARCHAR(10), archStatus VARCHAR(10), 
+PRIMARY KEY (archStatus_id));
+
+CREATE TABLE ActTimePrefer (actTimePrefer_id VARCHAR(10), 
+actTimePrefer VARCHAR(10),
+PRIMARY KEY (actTimePrefer_id));
+
+CREATE TABLE Language(lang_id VARCHAR(10), lang VARCHAR(30), 
+PRIMARY KEY (lang_id));
+
+CREATE TABLE FavorAct(favorAct_id VARCHAR(10), FavorAct VARCHAR(20), 
+PRIMARY KEY (favorAct_id));
+
+CREATE TABLE Type (type_id VARCHAR(10), type VARCHAR(20), 
+PRIMARY KEY (type_id));
+
+
+CREATE TABLE trail (trail_id VARCHAR(10), name VARCHAR(100),
+descript VARCHAR(300), length VARCHAR(10), elevation VARCHAR(10),
+diff_id VARCHAR(10), route_id VARCHAR(10),
+PRIMARY KEY (trail_id),
+FOREIGN KEY (diff_id) REFERENCES Difficulty,
+FOREIGN KEY (route_id) REFERENCES Route
+);
+
+
+
+CREATE TABLE Profile (member_id int IDENTITY(1,1),first_name VARCHAR(30), last_name VARCHAR(30), about_me VARCHAR(50),
+locat_long VARCHAR(30), locat_lat VARCHAR(30), email VARCHAR(30), password VARCHAR(30), unit_id VARCHAR(10), height VARCHAR(10), weight VARCHAR(10),
+birth VARCHAR(30), lang_id VARCHAR(10), actTimePrefer_id VARCHAR(10), 
+archStatus_id VARCHAR(10) DEFAULT 'arch_1',
+PRIMARY KEY(member_id),
+FOREIGN KEY (unit_id) REFERENCES Units,
+FOREIGN KEY (lang_id) REFERENCES Language,
+FOREIGN KEY (actTimePrefer_id) REFERENCES ActTimePrefer,
+FOREIGN KEY (archStatus_id) REFERENCES ArchStatus
+);
+
+
+
+CREATE TABLE FavorAct_profile (fp_id VARCHAR(200),  member_id int, favorAct_id VARCHAR(10), 
+PRIMARY KEY (fp_id),
+FOREIGN KEY (favorAct_id) REFERENCES FavorAct,
+FOREIGN KEY (member_id) REFERENCES Profile ON DELETE CASCADE,
+);
+
+CREATE TABLE FavorAct_trail (ft_id VARCHAR(200),  
+trail_id VARCHAR(10), favorAct_id VARCHAR(10), 
+PRIMARY KEY (ft_id),
+
+FOREIGN KEY (favorAct_id) REFERENCES FavorAct,
+FOREIGN KEY (trail_id) REFERENCES Trail
+);
+
+
+CREATE TABLE Completed (complete_id int IDENTITY(1,1),dateTime datetime, member_id int, trail_id VARCHAR(10),
+PRIMARY KEY(complete_id),
+FOREIGN KEY (member_id) REFERENCES Profile ON DELETE CASCADE,
+FOREIGN KEY (trail_id) REFERENCES Trail
+);
+
+CREATE TABLE Comments(comment_id int IDENTITY(1,1),stars VARCHAR(10), comment VARCHAR(100), dateTime datetime,
+member_id int, trail_id VARCHAR(10),
+PRIMARY KEY(comment_id),
+FOREIGN KEY (member_id) REFERENCES Profile ON DELETE CASCADE,
+FOREIGN KEY (trail_id) REFERENCES Trail
+);
+
+CREATE TABLE LinkedData(data_id int IDENTITY(1,1),
+content VARCHAR(300), dateTime dateTime, type_id VARCHAR(10), member_id int, trail_id VARCHAR(10),
+PRIMARY KEY(data_id),
+FOREIGN KEY (type_id) REFERENCES Type,
+FOREIGN KEY (member_id) REFERENCES Profile ON DELETE CASCADE,
+FOREIGN KEY (trail_id) REFERENCES trail
+);
+
+
+CREATE TABLE Badge (badge_id VARCHAR(10),badge_name VARCHAR(10), no_of_trail int,
+PRIMARY KEY (badge_id)
+);
+
+
+--INSERT
+--======
+INSERT INTO Difficulty (diff_id, diff) VALUES
+('diff_1', 'Easy'), ('diff_2', 'Moderate'), ('diff_3', 'Hard');
+
+INSERT INTO Route(route_id, route) VALUES
+('route_1', 'Loop'), ('route_2', 'Out-and-back'), ('route_3', 'Point-to-point');
+
+INSERT INTO Units (unit_id , type, for_height, for_weight ) VALUES
+('unit_1', 'Imperial', 'feet', 'lbs'),
+('unit_2', 'metric', 'mm', 'kg');
+
+
+INSERT INTO ArchStatus (archStatus_id, archStatus) VALUES
+('arch_1', 'active'),
+('arch_2', 'archive');
+
+INSERT INTO ActTimePrefer (actTimePrefer_id, actTimePrefer) VALUES
+('atp_1', 'Pace'),
+('atp_2', 'Speed');
+
+INSERT INTO Language (lang_id, lang) VALUES
+('lang_1', 'English (US)'),
+('lang_2', 'English (UK)'),
+('lang_3', 'Dansk (Danmark)'),
+('lang_4', 'Deutsch (Deutschland)'),
+('lang_5', 'Español (España)'),
+('lang_6', 'Español (Latinoamérica)'),
+('lang_7', 'Français (France)'),
+('lang_8', 'Italiano (Italia)'),
+('lang_9', 'Nederlands (Nederland)'),
+('lang_10', 'Norsk bokmål (Norge)'),
+('lang_11', 'Polski (Polska)'),
+('lang_12', 'Português (Brasil)'),
+('lang_13', 'Português (Portugal)'),
+('lang_14', 'Svenska (Sverige)');
+
+
+INSERT INTO FavorAct(favorAct_id, FavorAct) VALUES
+('fa_1', 'Backpacking'),
+('fa_2', 'Bike touring'),
+('fa_3', 'Bird Watching'),
+('fa_4', 'Camping'),
+('fa_5', 'Cross Country Skiing'),
+('fa_6', 'Fishing'),
+('fa_7', 'Hiking'),
+('fa_8', 'Horseback Riding'),
+('fa_9', 'Mountain biking'),
+('fa_10', 'OHV/Off-road driving'),
+('fa_11', 'Paddle Sports'),
+('fa_12', 'Road biking'),
+('fa_13', 'Rock climbing'),
+('fa_14', 'Running'),
+('fa_15', 'Scenic Driving'),
+('fa_16', 'Skiing'),
+('fa_17', 'Snowshoeing'),
+('fa_18', 'Via Ferrata'),
+('fa_19', 'Walking'),
+('fa_20', 'Cave'), ('fa_21', 'Dog friendly'), ('fa_22', 'Forest'), ('fa_23', 'Partially paved'),
+('fa_24', 'Rails trails'), ('fa_25', 'River'), ('fa_26', 'Views'), ('fa_27', 'Wildflowers'), ('fa_28', 'Wildlife'), ('fa_29', 'Waterfall'), ('fa_30', 'Rocky'), ('fa_31', 'Historic site');
+
+INSERT INTO Type (type_id, type) VALUES 
+('type_1', 'Photo'),
+('type_2', 'Activity'),
+('type_3', 'URL');
+
+
+
+
+INSERT INTO Trail (trail_id, name, descript, length, elevation,  diff_id, route_id) VALUES
+('t_1', 'Plymbridge Circular', 'Discover this 5.0-km loop trail near Plymouth, Devon. Generally considered an easy route', '5.0 km', '127m', 'diff_1', 'route_1'),
+('t_2', 'Cadover Bridge to Shaugh Bridge Circular', 'Experience this 7.1-km loop trail near Plymouth, Devon. Generally considered a moderately challenging route.', '7.1 km', '201m', 'diff_2', 'route_1'), 
+('t_3', 'Shaugh Bridge, Dewerstone and Cadover Circular', 'Discover this 6.0-km loop trail near Plymouth, Devon. Generally considered a moderately challenging route.', '6.0 km', '194m', 'diff_2', 'route_1'), 
+('t_4', 'Drakes Trail', 'Check out this 24.0-km point-to-point trail near Plymouth, Devon. Generally considered a challenging route.', '24 km', '591m', 'diff_3', 'route_3');
+
+
+INSERT INTO Profile (first_name, last_name, about_me,
+locat_long, locat_lat, email, password, unit_id , height, weight,
+birth , lang_id, actTimePrefer_id, archStatus_id) VALUES
+('Admin',  'Admin', 'I am Admin', NULL, NULL, 'admin@admin.com',
+'P@ssw0rd', NULL, NULL, NULL, NULL, NULL, NULL, 'arch_1'),
+
+('Hopper',  'Grace', 'I am a teacher', '50.3759° N', '4.1396° W', 'grace@plymouth.ac.uk', 'ISAD123!', 'unit_2', '160', '62', '3-July', 'lang_2', 'atp_1', 'arch_1'),
+
+('Lee',  'Tim Berners-', 'I am new in alltrail.com!', 
+'50.3759° N', '4.1396° W', 'tim@plymouth.ac.uk',
+'COMP2001!', 'unit_2', '180', '77', '1-May', 'lang_2', 'atp_2', 'arch_1'),
+
+('Lovelace', 'Ada', 'I like hiking', '50.3759° N', '4.1396° W', 'ada@plymouth.ac.uk', 'insecurePassword', 'unit_1', ' 5,10 ', '120', '12-June', 'lang_2', 'atp_2', 'arch_1');
+
+
+
+
+
+
+
+
+
+
+INSERT INTO FavorAct_profile(fp_id,member_id , favorAct_id) VALUES
+('fp_1',1, 'fa_7'),  ('fp_2',1, 'fa_14'), ('fp_3',1, 'fa_19'), 
+('fp_4',2, 'fa_2'), ('fp_5',2, 'fa_3'), ('fp_6',2, 'fa_7'),
+('fp_7',3, 'fa_14'), ('fp_8',3, 'fa_19'),
+('fp_9',4, 'fa_7'),  ('fp_10',4, 'fa_14'), ('fp_11',4, 'fa_19')
+;
+
+INSERT INTO FavorAct_trail(ft_id, trail_id , favorAct_id) VALUES
+('ft_1','t_1', 'fa_2'), ('ft_2','t_1', 'fa_3'), ('ft_3','t_1', 'fa_7'), ('ft_4','t_1', 'fa_14'), ('ft_5','t_1', 'fa_19'),
+('ft_6','t_1', 'fa_20'), ('ft_7','t_1', 'fa_21'), ('ft_8','t_1', 'fa_22'), ('ft_9','t_1', 'fa_23'), ('ft_10','t_1', 'fa_24'),
+('ft_11','t_1', 'fa_25'), ('ft_12','t_1', 'fa_26'), ('ft_13','t_1', 'fa_27'), ('ft_14','t_1', 'fa_28'),
+('ft_15','t_2', 'fa_3'), ('ft_16','t_2', 'fa_7'), ('ft_17','t_2', 'fa_14'), ('ft_18','t_2', 'fa_19'),
+('ft_19','t_2', 'fa_21'), ('ft_20','t_2', 'fa_22'), ('ft_21','t_2', 'fa_25'), ('ft_22','t_2', 'fa_26'), ('ft_23','t_2', 'fa_27'), 
+('ft_24','t_2', 'fa_28'), ('ft_25','t_2', 'fa_29'), ('ft_26','t_2', 'fa_30'), ('ft_27','t_2', 'fa_31'),
+('ft_28','t_3', 'fa_7'), ('ft_29','t_3', 'fa_14'), ('ft_30','t_3', 'fa_19'),
+('ft_31','t_3', 'fa_22'), ('ft_32','t_3', 'fa_25'), ('ft_33','t_3', 'fa_26'), ('ft_34','t_3', 'fa_27'), ('ft_35','t_3', 'fa_28'),
+('ft_36','t_3', 'fa_31'),
+('ft_37','t_4', 'fa_7'), ('ft_38','t_4', 'fa_12'), ('ft_39','t_4', 'fa_14'), ('ft_40','t_4', 'fa_19'), ('ft_41','t_4', 'fa_22'),
+('ft_42','t_4', 'fa_23'), ('ft_43','t_4', 'fa_24'), ('ft_44','t_4', 'fa_25'), ('ft_45','t_4', 'fa_26');
+
+
+INSERT INTO Completed(dateTime, member_id, trail_id) VALUES
+('2023-10-01', 2, 't_1'),
+('2023-11-11', 2, 't_2'),
+('2023-12-05', 2, 't_3'),
+('2023-12-17', 2, 't_4'),
+('2023-09-13', 3, 't_2'),
+('2023-12-05', 3, 't_4'),
+('2023-12-12', 3, 't_3'),
+('2023-09-13', 4, 't_4'),
+('2023-12-02', 4, 't_2');
+
+INSERT INTO Comments(stars, comment, dateTime, member_id, trail_id) VALUES
+('5', 'Great trail!', '2023-10-02', 2, 't_1'),
+('5', 'Loved it', '2023-11-12', 2, 't_2'),
+('4', 'it was real wet.', '2023-12-08', 3, 't_4'),
+('4', 'Beautiful little walk', '2023-12-14', 3, 't_3');
+
+
+INSERT INTO LinkedData(content, datetime, type_id, member_id, trail_id) VALUES
+('https://www.google.com.hk/maps/search/Plymbridge+Circular/@50.4089412,-4.1197634,13z/data=!3m1!4b1?entry=ttu', '2022-10-02','type_3', 1, 't_1'),
+
+('https://www.google.com.hk/maps/place/National+Trust+-+Cadover+Bridge/@50.4623193,-4.0405658,17z/data=!3m1!4b1!4m6!3m5!1s0x486cf1ed049db4ed:0x74d4b35a5b2b5fd!8m2!3d50.4623159!4d-4.0379909!16s%2Fg%2F11bwpytr4n?entry=ttu', '2022-10-02', 'type_3', 1, 't_2'),
+
+('https://www.google.com.hk/maps/search/Shaugh+Bridge,+Dewerstone+and+Cadover+Circular%E2%80%99/@50.4621265,-4.0542479,14.25z?entry=ttu', '2022-10-02', 'type_3', 1, 't_3'),
+('https://www.google.com.hk/maps/search/Drakes+Trail/@50.4622284,-4.1193272,12z/data=!3m1!4b1?entry=ttu', '2022-11-02', 'type_3', 1, 't_4'),
+('img_20230101', '2023-12-08', 'type_1', 2, 't_2'),
+('Afternoon hike at Plymbridge Circular', '2023-09-20', 'type_2', 3, 't_1');
+
+INSERT INTO Badge(badge_id, badge_name, no_of_trail) VALUES
+('badge_0', 'Welcome', '0'),
+('badge_1', 'Bronze', '3'),
+('badge_2', 'Silver', '5'),
+('badge_3', 'Golden', '10'),
+('badge_4', 'Diamond', '20');
+

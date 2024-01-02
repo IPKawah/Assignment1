@@ -1,0 +1,75 @@
+-- Trigger
+CREATE TRIGGER Insert_Activity
+ON Profile
+AFTER INSERT
+AS
+BEGIN
+
+    -- Obtain number of favorite activities in Act_temp
+    DECLARE @FA_num VARCHAR(100);
+    SELECT @FA_num = COUNT(favourAct_id) FROM Act_temp;
+
+    IF @FA_num > 0 
+    BEGIN 
+        -- Declare a variable to hold the member_id
+        DECLARE @member_id int;
+
+        -- Obtain the member_id of the inserted record
+        SELECT @member_id = member_id
+        FROM inserted;
+
+
+        -- Insert into FavorAct_profile
+        DECLARE @i INT = 1;
+        WHILE @i < @FA_num +1
+        BEGIN
+            -- obtain the new PRIMARY KEY 
+            DECLARE @count INT;
+            DECLARE @temp VARCHAR(20);
+            DECLARE @New_id VARCHAR(200);
+            SELECT @count = COUNT(fp_id) FROM FavorAct_profile;
+            SELECT @New_id = CONCAT('fp_', @count+1);
+            SELECT @temp = FavourAct_id FROM Act_temp WHERE id = @i;
+            --PRINT @New_id;
+            --PRINT @i;
+            --PRINT @temp;
+            -- Insert into FavorAct_profile if matching favourAct_id exists in temp table
+            INSERT INTO FavorAct_profile (fp_id, member_id, favorAct_id) VALUES
+            (@New_id, @member_id, @temp);
+            
+            SET @i = @i + 1;
+        END;
+    -- DELETE FROM Act_temp
+    DELETE FROM Act_temp;
+    END;
+END;
+
+
+-- Create temp entity to store the favorite activities selected by user on front page
+
+CREATE TABLE Act_temp (id INT IDENTITY(1,1), favourAct_id VARCHAR(100), PRIMARY KEY(id));
+INSERT INTO Act_temp (favourAct_id)
+            VALUES ('fa_20'),('fa_14'),('fa_9');
+
+
+
+-- View the respective entities
+SELECT * FROM Profile;
+SELECT * FROM FavorAct_profile;
+SELECT * FROM Act_temp;
+
+--INSERT a new user by using stored procedure
+exec ProfileService_PRO '', 'Polly', 'WONG', 'I am a student', '-0,12248', '51.51857', 'pollyw@gmail.com', 'IL@veMiffy', 'unit_2', '155', '45', '23-Jan', 'lang_2', 'atp_1', 'arch_1', 'INSERT';
+
+-- View the respective entities again
+SELECT * FROM Profile;
+SELECT * FROM FavorAct_profile;
+SELECT * FROM Act_temp;
+
+
+-- Use the stored procedure to delete the new added user
+-- ** check the member_id X from SELECT * FROM Profile, and relpace the X below
+exec ProfileService_PRO X, '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'DELETE';
+
+
+

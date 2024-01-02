@@ -1,0 +1,55 @@
+--VIEW
+--====
+
+--For account
+CREATE VIEW AccountService AS
+SELECT member_id, email, password FROM Profile
+WHERE archStatus_id = 'arch_1';
+
+
+--For profile
+CREATE VIEW ProfileService AS
+SELECT DISTINCT P.member_id, P.first_name, P.last_name, P.about_me, P.birth, L.Lang, A.archStatus, P.locat_lat, P.locat_long, T.actTimePrefer, P.height, 
+U.for_height, P.weight, U.for_weight, F.FavorAct
+FROM Profile P, Language L, ArchStatus A, ActTimePrefer T, Units U, FavorAct_profile E, FavorAct F
+WHERE L.lang_id = P.lang_id AND A.archStatus_id = P.archStatus_id AND T.actTimePrefer_id = P.actTimePrefer_id AND U.unit_id=P.unit_id
+AND E.member_id = P.member_id AND E.favorAct_id = F.favorAct_id
+;
+
+--For Trail
+CREATE VIEW TrailService AS
+SELECT DISTINCT T.trail_id, T.name, T.descript, T.length, T.elevation, D.diff, R.route 
+FROM Trail T, Difficulty D, Route R, FavorAct_trail E, FavorAct F 
+WHERE T.diff_id = D.diff_id AND T.route_id = R.route_id AND E.trail_id = T.trail_id AND E.favorAct_id = F.favorAct_id
+;
+
+--For CommentService
+CREATE VIEW CommentService AS
+SELECT C.member_id, P.first_name, P.last_name, T.name, C.comment, C.stars AS No_of_stars, C.dateTime
+FROM Comments C, Trail T, Profile P
+Where C.trail_id = T.trail_id AND P.member_id = C.member_id
+;
+
+--For RecommenderService
+CREATE View RecommenderService AS
+SELECT P.member_id, T.trail_id, T.name, COUNT(DISTINCT F.favorAct_id) AS matched_favorActs
+FROM FavorAct_profile P, FavorAct_trail F, Trail T
+WHERE P.favorAct_id = F.favorAct_id AND F.trail_id = T.trail_id
+GROUP BY P.member_id, T.trail_id, T.name
+HAVING COUNT(DISTINCT F.favorAct_id) >= 3;
+
+
+--For LinkedDataService
+CREATE VIEW LinkedDataService AS
+SELECT L.data_id, T.name, L.content,  U.[type], P.first_name, P.last_name, L.[dateTime]
+FROM LinkedData L, trail T, Type U, Profile P
+WHERE L.trail_id = T.trail_id AND L.type_id = U.type_id AND P.member_id = L.member_id
+;
+
+
+--For BadgeService
+CREATE VIEW BadgeService AS
+SELECT C.member_id, COUNT(C.trail_id) AS trail_count, B.badge_name
+FROM Completed C, Badge B
+GROUP BY C.member_id, B.badge_name, B.no_of_trail
+HAVING COUNT(C.trail_id) >= B.no_of_trail

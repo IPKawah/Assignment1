@@ -1,0 +1,327 @@
+--(1)	For ProfileService
+CREATE PROC ProfileService_PRO(@member_id int, @first_name VARCHAR(30), @last_name VARCHAR(30), @about_me VARCHAR(50), @locat_long VARCHAR(30), @locat_lat VARCHAR(30), 
+@email VARCHAR(30), @password VARCHAR(30), @unit_id VARCHAR(10), @height VARCHAR(10), 
+@weight VARCHAR(10), @birth VARCHAR(30), @lang_id VARCHAR(10), @actTimePrefer_id VARCHAR(10), 
+@archStatus_id VARCHAR(10), @PRO_type VARCHAR(50)
+)
+AS
+BEGIN
+    IF @PRO_type = 'SELECT'
+    BEGIN
+        SELECT DISTINCT P.member_id, P.first_name, P.last_name, P.about_me, P.birth, L.Lang, 
+        A.archStatus, P.locat_lat, P.locat_long,
+        T.actTimePrefer, P.height, U.for_height, P.weight, U.for_weight
+        FROM Profile P, Language L, ArchStatus A, ActTimePrefer T, Units U
+        WHERE L.lang_id = P.lang_id AND A.archStatus_id = P.archStatus_id AND 
+        T.actTimePrefer_id = P.actTimePrefer_id AND U.unit_id=P.unit_id
+        ;
+    END;
+
+    IF @PRO_type = 'INSERT'
+    BEGIN
+        INSERT INTO Profile(first_name, last_name, about_me, locat_long, locat_lat, email, 
+        password, unit_id, height, weight, birth , lang_id, actTimePrefer_id, archStatus_id) 
+        VALUES (@first_name, @last_name, @about_me, @locat_long, @locat_lat, @email, 
+        @password, @unit_id, @height, @weight, @birth , @lang_id, @actTimePrefer_id, 'arch_1')
+    END;
+
+    IF @PRO_type = 'UPDATE'
+    BEGIN
+        UPDATE Profile SET first_name = @first_name, about_me = @about_me, 
+        locat_long = @locat_long, locat_lat = @locat_lat, email=@email, password = @password, 
+        unit_id = @unit_id, height = @height, weight = @weight, birth = @birth, lang_id = @lang_id,
+        actTimePrefer_id = @actTimePrefer_id, archStatus_id = @archStatus_id
+        WHERE member_id = @member_id;
+    END;
+
+    IF @PRO_type = 'DELETE'
+    BEGIN
+        DELETE FROM Profile WHERE member_id = @member_id;
+    END;
+END;
+
+
+--To View
+exec ProfileService_PRO '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'SELECT';
+
+--To Insert
+exec ProfileService_PRO 0, 'Polly', 'WONG', 'I am a student', '-0,12248', '51.51857', 'pollyw@gmail.com', 'IL@veMiffy', 'unit_2', '155', '45', '23-Jan', 'lang_2', 'atp_1', 'arch_1', 'INSERT';
+
+--To Update
+exec ProfileService_PRO 6, 'Polly', 'WONG', 'I am a student!!!', '-0,12248', '51.51857', 'pollyw@gmail.com', 'IL@veMiffy', 'unit_2', '155', '45', '23-Jan', 'lang_3', 'atp_2', 'arch_1', 'UPDATE';
+
+--To Delete
+exec ProfileService_PRO 6, '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'DELETE';
+
+
+
+
+--(2)	AccountService 
+CREATE PROC AccountService_PRO(@member_id int, @email VARCHAR(30), @password VARCHAR(30), @PRO_type VARCHAR(50))
+AS
+BEGIN
+    IF @PRO_type = 'SELECT'
+    BEGIN
+        SELECT member_id, email, password FROM Profile;
+    END;
+
+    IF @PRO_type = 'INSERT'
+    BEGIN
+        INSERT INTO Profile(email, password) VALUES (@email, @password)
+    END;
+
+    IF @PRO_type = 'UPDATE'
+    BEGIN
+        UPDATE Profile SET email = @email, password = @password 
+        WHERE member_id = @member_id;
+    END;
+
+    IF @PRO_type = 'DELETE'
+    BEGIN
+        DELETE FROM Profile WHERE member_id = @member_id;
+    END;
+END;
+
+
+
+--To View
+exec AccountService_PRO '','','','SELECT';
+
+--To Insert
+exec AccountService_PRO 0, 'PaulMM@gmail.com', 'Y@u_andME', 'INSERT';
+
+--To Update
+exec AccountService_PRO 5, 'PaulMM@gmail.com', 'Y@u_andME123', 'UPDATE';
+
+--To Delete
+exec AccountService_PRO 8, '', '', 'DELETE';
+
+
+--(3) BadgeService
+CREATE PROC BadgeService_PRO(@badge_id VARCHAR(10),@badge_name VARCHAR(10), @no_of_trail int, @PRO_type VARCHAR(50))
+AS
+BEGIN
+    IF @PRO_type = 'SELECT'
+    BEGIN
+        SELECT * FROM Badge;
+    END;
+
+    IF @PRO_type = 'INSERT'
+    BEGIN
+        INSERT INTO Badge(badge_id, badge_name, no_of_trail) VALUES (@badge_id, @badge_name, @no_of_trail)
+    END;
+
+    IF @PRO_type = 'UPDATE'
+    BEGIN
+        UPDATE Badge SET badge_id = @badge_id, badge_name = @badge_name, no_of_trail = @no_of_trail WHERE badge_id = @badge_id;
+    END;
+
+    IF @PRO_type = 'DELETE'
+    BEGIN
+        DELETE FROM Badge WHERE badge_id = @badge_id ;
+    END;
+END;
+
+
+
+--To View
+exec BadgeService_PRO '', '', '', 'SELECT';
+
+--To Insert
+exec BadgeService_PRO  'badge_5','BOOM','30', 'INSERT';
+
+--To Update
+exec BadgeService_PRO  'badge_5','WaLaLa','35', 'UPDATE';
+
+--To Delete
+exec BadgeService_PRO  'badge_5','','', 'DELETE';
+
+
+--(4)	TrailService
+
+CREATE PROC TrailService_PRO(@trail_id VARCHAR(10), @name VARCHAR(100), @descript VARCHAR(300), @length VARCHAR(10), @elevation VARCHAR(10),
+@diff_id VARCHAR(10), @route_id VARCHAR(10), @PRO_type VARCHAR(50))
+AS
+BEGIN
+    IF @PRO_type = 'SELECT'
+    BEGIN
+        SELECT DISTINCT T.trail_id, T.name, T.descript, T.length, T.elevation, D.diff, R.route 
+        FROM Trail T, Difficulty D, Route R 
+        WHERE T.diff_id = D.diff_id AND T.route_id = R.route_id;
+    END;
+
+    IF @PRO_type = 'INSERT'
+    BEGIN
+        INSERT INTO Trail (trail_id, name, descript, length, elevation,  diff_id, route_id) VALUES 
+        (@trail_id, @name, @descript, @length, @elevation,  @diff_id, @route_id);
+    END;
+
+    IF @PRO_type = 'UPDATE'
+    BEGIN
+        UPDATE Trail SET trail_id = @trail_id, name = @name, descript = @descript, length = @length,    
+        elevation = @elevation,  
+        diff_id = @diff_id, route_id = route_id
+        WHERE trail_id = @trail_id;
+    END;
+
+    IF @PRO_type = 'DELETE'
+    BEGIN
+        DELETE FROM Trail WHERE trail_id = @trail_id;
+    END;
+END;
+
+
+--To View
+exec TrailService_PRO '','','','','','','','SELECT';
+
+--To Insert
+exec TrailService_PRO 't_5','South West Coast Path: Heybrook Bay','Explore this 5.1-km out-and-back trail near Plymouth, Devon. Generally considered an easy route, it takes an average of 1 h 8 min to complete. ','5.1 km','62m','diff_1','route_2','INSERT';
+
+--To Update
+exec TrailService_PRO 't_5','South West Coast Path: Heybrook Bay','Explore this 5.1-km out-and-back trail near Plymouth, Devon. Generally considered an easy route, it takes an average of 1 h 8 min to complete. ','5.1 km','62m','diff_2','route_1','UPDATE';
+
+--To Delete
+exec TrailService_PRO 't_5','','','','','','','DELETE';
+
+
+
+--(5)	CommentService
+
+CREATE PROC CommentsService_PRO(@comment_id int, @stars VARCHAR(10), @comment VARCHAR(100), @dateTime datetime,@member_id int, @trail_id VARCHAR(10), @PRO_type VARCHAR(50))
+AS
+BEGIN
+    IF @PRO_type = 'SELECT'
+    BEGIN
+        SELECT * FROM Comments;
+    END;
+
+    IF @PRO_type = 'INSERT'
+    BEGIN
+        INSERT INTO Comments (stars, comment, dateTime, member_id, trail_id) VALUES 
+        (@stars, @comment, @dateTime, @member_id, @trail_id);
+    END;
+
+    IF @PRO_type = 'UPDATE'
+    BEGIN
+        UPDATE Comments SET stars = @stars, comment = @comment, 
+        dateTime = @dateTime, member_id = @member_id,  
+        trail_id = @trail_id
+        WHERE comment_id = @comment_id;
+    END;
+
+    IF @PRO_type = 'DELETE'
+    BEGIN
+        DELETE FROM Comments WHERE comment_id = @comment_id;
+    END;
+END;
+
+
+--To View
+exec CommentsService_PRO '','','','','','','SELECT';
+
+--To Insert
+exec CommentsService_PRO '', '3', 'Not for beginner', '2023-12-22 14:12:00', 4, 't_4', 'INSERT';
+
+--To Update
+exec CommentsService_PRO 5, '2', 'Not for beginner!!!', '2023-12-22 14:12:00', 4, 't_4', 'UPDATE';
+
+--To Delete
+exec CommentsService_PRO 5, '', '', '', '', '', 'DELETE';
+
+
+
+--(6)	LinkedDataService
+
+
+CREATE PROC LinkedDataService_PRO(@data_id int, @content VARCHAR(300), @dateTime datetime, @type_id VARCHAR(10), @member_id int, @trail_id VARCHAR(10) , @PRO_type VARCHAR(50)
+)
+AS
+BEGIN
+    IF @PRO_type = 'SELECT'
+    BEGIN
+        SELECT L.data_id, T.name, L.content,  U.[type], P.first_name, P.last_name, L.[dateTime]
+        FROM LinkedData L, trail T, Type U, Profile P
+        WHERE L.trail_id = T.trail_id AND L.type_id = U.type_id AND P.member_id = L.member_id;
+    END;
+
+    IF @PRO_type = 'INSERT'
+    BEGIN
+        INSERT INTO LinkedData (content, dateTime, type_id, member_id, trail_id) VALUES 
+        (@content, @dateTime, @type_id, @member_id , @trail_id)
+    END;
+
+    IF @PRO_type = 'UPDATE'
+    BEGIN
+        UPDATE LinkedData SET content = @content, dateTime = @dateTime, type_id = @type_id, member_id = @member_id, trail_id = @trail_id
+        WHERE data_id = @data_id;
+    END;
+
+    IF @PRO_type = 'DELETE'
+    BEGIN
+        DELETE FROM LinkedData WHERE data_id = @data_id;
+    END;
+END;
+
+
+--To View
+exec LinkedDataService_PRO '','','','','','','SELECT';
+
+--To Insert
+exec LinkedDataService_PRO '','img_45678.jpg','2023-12-23', 'type_1', 4, 't_3', 'INSERT';
+
+--To Update
+exec LinkedDataService_PRO 15,'img_45678.jpg','2023-12-23 14:16:00', 'type_1', 2, 't_4', 'UPDATE';
+
+--To Delete
+exec LinkedDataService_PRO 15,'','','','','','DELETE';
+
+
+
+--(7)	RecommenderService
+
+
+CREATE PROC RecommenderService_PRO(@fp_id VARCHAR(200) ,@member_id int, @favorAct_id VARCHAR(10), @PRO_type VARCHAR(50)
+)
+AS
+BEGIN
+    IF @PRO_type = 'SELECT'
+    BEGIN
+        SELECT P.member_id, T.trail_id, T.name, COUNT(DISTINCT F.favorAct_id) AS matched_favorActs
+        FROM FavorAct_profile P, FavorAct_trail F, Trail T
+        WHERE P.favorAct_id = F.favorAct_id AND F.trail_id = T.trail_id
+        GROUP BY P.member_id, T.trail_id, T.name
+        HAVING COUNT(DISTINCT F.favorAct_id) >= 3
+        ORDER BY P.member_id;
+    END;
+
+    IF @PRO_type = 'INSERT'
+    BEGIN
+        INSERT INTO FavorAct_profile(fp_id, member_id, favorAct_id) VALUES 
+        (@fp_id, @member_id, @favorAct_id);
+    END;
+
+    IF @PRO_type = 'UPDATE'
+    BEGIN
+        UPDATE FavorAct_profile SET member_id = @member_id, favorAct_id = @favorAct_id
+        WHERE fp_id = @fp_id;
+    END;
+
+    IF @PRO_type = 'DELETE'
+    BEGIN
+        DELETE FROM FavorAct_profile WHERE member_id = @member_id AND favorAct_id = @favorAct_id;
+
+    END;
+END;
+
+
+--To View
+exec RecommenderService_PRO '', '', '', 'SELECT';
+
+--To Insert
+exec RecommenderService_PRO 'fp_12', 3, 'fa_7', 'INSERT';
+
+--To Update
+exec RecommenderService_PRO 'fp_12', 3, 'fa_20', 'UPDATE';
+
+--To Delete
+exec RecommenderService_PRO '', 3, 'fa_20', 'DELETE';
